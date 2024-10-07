@@ -22,6 +22,7 @@ public class Effector : MonoBehaviour
     public float radius;
     public float triggerRadius;
     public float timeActive;
+    public float timeDecayed = 10;
     public List<Effect> effects = new();
 
     private SpriteRenderer _renderer;
@@ -32,6 +33,7 @@ public class Effector : MonoBehaviour
 
     private bool _opened;
     private float _timeOpened;
+    private float _timeDecaying;
     private void Start()
     {
         if(type == EffectorType.Food)
@@ -49,6 +51,14 @@ public class Effector : MonoBehaviour
             {
                 _opened = false;
                 _animator.SetBool(Open, false);
+            }
+        } else if (type == EffectorType.Food)
+        {
+            _timeDecaying += Time.deltaTime;
+            if (_timeDecaying >= timeDecayed)
+            {
+                BoidProvider.Effectors.Remove(this);
+                Destroy(gameObject);
             }
         }
     }

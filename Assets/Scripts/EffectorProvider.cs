@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ public class EffectorProvider : MonoBehaviour
         selectors[_currentSelector].Select();
     }
 
-    public void RemoveFood()
+    public static void RemoveFood()
     {
         var toRemove = new List<Effector>();
         foreach (var effector in BoidProvider.Effectors)
@@ -50,10 +51,27 @@ public class EffectorProvider : MonoBehaviour
     
     private void Create(Vector3 position)
     {
-        if (selectors[_currentSelector].GetCount() <= 0) return;
+        if (selectors[_currentSelector].GetCount() <= 0)
+        {
+            return;
+        }
         selectors[_currentSelector].Decrement();
+        if(!CheckInventory())
+            StartCoroutine(nameof(WaitToEnd));
         var obj = Instantiate(selectors[_currentSelector].prefab, position, Quaternion.identity);
         BoidProvider.Effectors.Add(obj);
+    }
+
+    public IEnumerator WaitToEnd()
+    {
+        float current = 0;
+        float duration = 5;
+        while (current < duration)
+        {
+            current += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        GameManager.Instance.FinishedLevel();
     }
     
     private void Update()
@@ -70,5 +88,17 @@ public class EffectorProvider : MonoBehaviour
         {
             Select(selectors[2]);
         }
+    }
+
+    private bool CheckInventory()
+    {
+        var has = false;
+        foreach (var selector in selectors)
+        {
+            if (selector.GetCount() > 0)
+                has = true;
+        }
+
+        return has;
     }
 }

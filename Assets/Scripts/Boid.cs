@@ -5,21 +5,12 @@ public class Boid : MonoBehaviour
 {
     private Vector2 _velocity;
     private BoidType _type;
-    // private SpriteRenderer _renderer;
     private Vector2 _startVelocity;
     public void Init(BoidType type, Vector2 startVelocity, GameObject prefab)
     {
         _velocity = RandomStartVelocity(startVelocity);
         _type = type;
-        // _renderer = GetComponentInChildren<SpriteRenderer>();
         _startVelocity = startVelocity;
-        // var color = _type switch
-        // {
-        //     BoidType.Blue => Color.blue,
-        //     BoidType.Red => Color.red,
-        //     _ => Color.black
-        // };
-        // _renderer.color = color;
         Instantiate(prefab, transform);
     }
 

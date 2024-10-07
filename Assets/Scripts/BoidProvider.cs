@@ -75,11 +75,6 @@ public class BoidProvider : MonoBehaviour
     
     private void Update()
     {
-        // if (RegisteredBoid.Count <= 0)
-        // {
-        //     GameManager.Instance.FinishedLevel();
-        //     return;
-        // }
         foreach (var boid in RegisteredBoid)
         {
             var neighbors = GetNeighbors(boid);
@@ -108,15 +103,15 @@ public class BoidProvider : MonoBehaviour
                 GameObject prefab = blackBoid[0];
                 if (spawner.type == BoidType.Black)
                 {
-                    prefab = blackBoid[Random.Range(0, blackBoid.Count - 1)];
+                    prefab = blackBoid[Random.Range(0, blackBoid.Count)];
                 }
                 else if (spawner.type == BoidType.Red)
                 {
-                    prefab = redBoid[Random.Range(0, redBoid.Count - 1)];
+                    prefab = redBoid[Random.Range(0, redBoid.Count)];
                 }
                 else if (spawner.type == BoidType.Yellow)
                 {
-                    prefab = yellowBoid[Random.Range(0, yellowBoid.Count - 1)];
+                    prefab = yellowBoid[Random.Range(0, yellowBoid.Count)];
                 }
                 boid.Init(spawner.type, startingVelocity, prefab);
                 RegisteredBoid.Add(boid);
@@ -142,14 +137,22 @@ public class BoidProvider : MonoBehaviour
     private List<Effector> GetEffectors(Boid target)
     {
         var effects = new List<Effector>();
+        var onlyExit = new List<Effector>();
         foreach (var effector in Effectors)
         {
             if (Vector2.Distance(target.transform.position, effector.transform.position) < effector.radius)
             {
-                effects.Add(effector);
+                if (effector.type == EffectorType.Exit)
+                {
+                    onlyExit.Add(effector);
+                }
+                else
+                {
+                    effects.Add(effector);
+                }
             }
         }
-        return effects;
+        return onlyExit.Count > 0 ? onlyExit : effects;
     }
 }
 

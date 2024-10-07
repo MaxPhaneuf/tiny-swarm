@@ -15,8 +15,10 @@ public class GameManager : MonoBehaviour
     public Button nextLevel;
     public static GameManager Instance;
 
-    public GameObject startUi, gameUi;
+    public GameObject startUi, gameUi, gameoverUi;
     public AudioSource startAudio, gameAudio;
+
+    private bool _gameover;
     private void Awake()
     {
         Instance = this;
@@ -29,6 +31,8 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        _gameover = false;
+        gameoverUi.SetActive(false);
         startUi.SetActive(false);
         gameUi.SetActive(true);
         startAudio.enabled = false;
@@ -60,7 +64,7 @@ public class GameManager : MonoBehaviour
         {
             spawner.amount = currentLevel * 12;
         }
-        effectors.RemoveFood();
+        EffectorProvider.RemoveFood();
         effectors.Init(currentLevel + 5);
         provider.CreateBoids();
     }
@@ -68,12 +72,14 @@ public class GameManager : MonoBehaviour
     public void QuitGame()
     {
         startAudio.enabled = true;
+        _gameover = false;
         gameAudio.enabled = false;
+        gameoverUi.SetActive(false);
         startUi.SetActive(true);
         gameUi.SetActive(false);
         provider.RemoveBoid();
         currentCollected = 0;
-        effectors.RemoveFood();
+        EffectorProvider.RemoveFood();
         if (Camera.main != null)
         {
             Camera.main.transform.position = new Vector3(0, 0, Camera.main.transform.position.z);
@@ -85,6 +91,18 @@ public class GameManager : MonoBehaviour
         collectedCount.text = 0.ToString();
         nextLevel.interactable = false;
         effectors.Init(0);
+    }
+
+    private void GameOver()
+    {
+        gameoverUi.SetActive(true);
+        gameUi.SetActive(false);
+    }
+
+    public void Restart()
+    {
+        QuitGame();
+        StartGame();
     }
     
     public void Collect()
@@ -99,9 +117,10 @@ public class GameManager : MonoBehaviour
 
     public void FinishedLevel()
     {
-        if (currentCollected < currentRequired)
+        if (currentCollected < currentRequired && !_gameover)
         {
-            Debug.Log("GAME OVER");
+            _gameover = true;
+            GameOver();
         }
     }
 }
